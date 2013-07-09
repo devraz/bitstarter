@@ -41,25 +41,20 @@ var assertLinkExists = function(url) {
 	rest.get(url).on('complete', checkLink);
 };
 
+var graderFn = function($, checksfile)
+{
+	var checkJson = checkHtmlFile($, checksfile);
+	var outJson = JSON.stringify(checkJson, null, 4);
+	console.log(outJson);
+}
+
 var checkLink = function(result, response) {
 	if(result instanceof Error) {
 		console.error('Error', + util.format(response.message));
 	} else {
-		console.error('Parsing link');
-		$ = cheerioLinkToHtmlFile(result);
-		var checkJson = checkHtmlFile($, program.checks);
-	    var outJson = JSON.stringify(checkJson, null, 4);
-	    console.log(outJson);
+		$ = cheerio.load(result);
+		graderFn($, program.checks);
 	}
-};
-
-
-var cheerioHtmlFile = function(htmlfile) {
-    return cheerio.load(fs.readFileSync(htmlfile));
-};
-
-var cheerioLinkToHtmlFile = function(htmlcontents) {
-    return cheerio.load(htmlcontents);
 };
 
 var loadChecks = function(checksfile) {
@@ -76,8 +71,6 @@ var checkHtmlFile = function($, checksfile) {
     return out;
 };
 
-var checkLinkToHtmlFile
-
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
@@ -87,14 +80,12 @@ var clone = function(fn) {
 if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
-        .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .option('-u, --url <url_link>', 'URL Path to index.html', clone(assertLinkExists))
+        .option('-f, --file [html_file]', 'Path to index.html', clone(assertFileExists))
+        .option('-u, --url [url_link]', 'URL Path to index.html', clone(assertLinkExists))
         .parse(process.argv);
     if(program.file) {
-    	$ = cheerioHtmlFile(program.file);
-	    var checkJson = checkHtmlFile($, program.checks);
-	    var outJson = JSON.stringify(checkJson, null, 4);
-	    console.log(outJson);
+    	$ = cheerio.load(fs.readFileSync(program.file));
+    	graderFn($,program.checks);
 	}
 } else {
     exports.checkHtmlFile = checkHtmlFile;
