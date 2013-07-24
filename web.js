@@ -8,10 +8,13 @@ str = buffer.toString();
 
 app.use('/css',express.static(__dirname + '/bootstrap/css/'));
 app.use('/css',express.static(__dirname + '/font-awesome/css/'));
+app.use('/font',express.static(__dirname + '/font-awesome/font/'));
 app.use('/css',express.static(__dirname + '/bootstrap-social-buttons/css/'));
 
 app.use('/js',express.static(__dirname + '/bootstrap/js/'));
 app.use('/js',express.static(__dirname + '/jquery/js/'));
+
+app.use('/images',express.static(__dirname + '/images/'));
 
 app.get('/', function(request, response) {
   response.send(str);
